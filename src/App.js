@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Restaurant from './Restaurant/Restaurant';
 import RestaurantForm from './RestaurantForm/RestaurantForm';
-import { DB_CONFIG } from './Config/Config';
-import firebase from 'firebase/app';
+import { firebase } from '@firebase/app'
+import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import 'firebase/database';
-import './App.css';
 import { AppBar, Toolbar, Typography, Button } from '@material-ui/core';
 import List from '@material-ui/core/List';
 
@@ -14,6 +13,16 @@ const useStyles = makeStyles({
     flexGrow: 1,
   },
 });
+
+var DB_CONFIG = {
+  apiKey: "AIzaSyBzgoMD5Q8ImlYUuFNbcJbrmXau8BioQFQ",
+  authDomain: "lunchy-a4a0c.firebaseapp.com",
+  databaseURL: "https://lunchy-a4a0c.firebaseio.com",
+  projectId: "lunchy-a4a0c",
+  storageBucket: "lunchy-a4a0c.appspot.com",
+  messagingSenderId: "418058350962",
+  appId: "1:418058350962:web:598b99d215727fe4"
+};
 
 const getDatabase = (app) => {
   console.log(app, 'APP');
@@ -25,6 +34,15 @@ const getDatabase = (app) => {
 const App = (props) => {
   const classes = useStyles();
   const [app, setApp] = useState(null);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  const uiConfig = {
+    signInFlow: "popup",
+    signInOptions: new firebase.auth.GoogleAuthProvider(),
+    callbacks: {
+      signInSuccess: () => false
+    }
+  }
 
 
   // We're going to setup the React state of our component
@@ -33,6 +51,10 @@ const App = (props) => {
   useEffect(() => {
     const tempApp = firebase.initializeApp(DB_CONFIG);
     setApp(tempApp);
+
+    firebase.auth().onAuthStateChanged(user => {
+      setIsSignedIn(!!user);
+    })
 
     // DataSnapshot
     if (tempApp) {
@@ -82,10 +104,13 @@ const App = (props) => {
           <Typography variant="h6" color="inherit" className={classes.title}>
             Lunchy[club]
         </Typography>
-          {/* { !user
-          ? <Button color="inherit" onClick={login}>Login</Button>
-          : <Button color="inherit" onClick={logout}>Logout</Button>
-        } */}
+          {!isSignedIn
+            ? <StyledFirebaseAuth
+              uiConfig={uiConfig}
+              firebaseAuth={firebase.auth()}
+            />
+            : <Button color="inherit" >Logout</Button>
+          }
           <Button color="inherit" >Logout</Button>
         </Toolbar>
       </AppBar>
