@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useFirebase } from "./Firebase";
 import Restaurant from "./Restaurant/Restaurant";
 import RestaurantForm from "./RestaurantForm/RestaurantForm";
@@ -48,10 +48,14 @@ const App = props => {
   const addDescription = (noteId, description) => {
     restaurantRef.current.child(noteId).update({ description: description });
   };
-  const upVote = (id, userId, user) => {
-    restaurantRef.current
-      .child(id + "/upVotes/" + userId)
-      .set({ id: userId, user: user });
+  const upVote = (noteId, userId, user, votes) => {
+    if (votes && votes[userId]) {
+      restaurantRef.current.child(noteId + "/upVotes/" + userId).remove();
+    } else {
+      restaurantRef.current
+        .child(noteId + "/upVotes/" + userId)
+        .set({ id: userId, user: user });
+    }
   };
   const removeRestaurant = noteId => {
     restaurantRef.current.child(noteId).remove();
@@ -64,7 +68,7 @@ const App = props => {
   };
 
   return (
-    <div>
+    <div id="root">
       <AppBar position="static" color="primary">
         <Toolbar>
           <Typography variant="h6" color="inherit" className={classes.title}>
@@ -86,7 +90,6 @@ const App = props => {
           <List>
             {values.map(snap => {
               const note = snap.val();
-              console.log(note.upVotes, "ID");
               return (
                 <Restaurant
                   user={user}

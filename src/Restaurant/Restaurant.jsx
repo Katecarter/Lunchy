@@ -23,7 +23,6 @@ const Restaurant = props => {
     }
     return size;
   };
-  console.log("HEY", props.description);
 
   return (
     <React.Fragment>
@@ -44,8 +43,18 @@ const Restaurant = props => {
         </Button>
         <Badge badgeContent={getVoteLength()} color="primary">
           <Button
+            color={
+              props.votes && props.votes[props.user.uid]
+                ? "secondary"
+                : "primary"
+            }
             onClick={() =>
-              props.upVote(props.noteId, props.user.uid, props.user.email)
+              props.upVote(
+                props.noteId,
+                props.user.uid,
+                props.user.email,
+                props.votes
+              )
             }
           >
             <UpVote />
